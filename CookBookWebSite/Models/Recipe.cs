@@ -8,6 +8,7 @@ namespace CookBookWebSite.Models {
 		public string title { get; set; }
 		public string descript { get; set; }
 		public int serving_size { get; set; }
+
 		public List<Ingredient> ingredients { get; set; }
 		public CookBook cookbook { get; set; }
 	}

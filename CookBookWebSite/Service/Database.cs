@@ -1,21 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using CookBookWebSite.Models;
 using System.Data;
 using System.Data.SqlClient;
 using Dapper;
+using CookBookWebSite.Service.SQL;
+using System.Diagnostics;
 
 namespace CookBookWebSite.Service {
 	public class Database {
 		private string connection = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+		private string master = ConfigurationManager.ConnectionStrings["MasterConnection"].ConnectionString;
 
 		#region Database Creation
 
+		public void initDatabase() {
+			CreateDatabase();
+			CreateTables();
+			InsertData();
+		}
+
 		// Drop & Create Database
 		public void CreateDatabase() {
-			using (IDbConnection db = new SqlConnection(connection)) {
+			using (IDbConnection db = new SqlConnection(master)) {
 				db.Execute(Scripts.CreateDatabaseSql);
 			}
 		}
@@ -44,7 +51,7 @@ namespace CookBookWebSite.Service {
 		// Create new row in CookBook
 		public void Create(CookBook c) {
 			using (IDbConnection db = new SqlConnection(connection)) {
-				string sqlQuery = "INSERT INTO cookbook VALUES(@cookbook_id, @title)";
+				string sqlQuery = "INSERT INTO cookbook VALUES(@title)";
 				db.Execute(sqlQuery, c);
 			}
 		}
@@ -53,7 +60,7 @@ namespace CookBookWebSite.Service {
 		// Create new row in Recipe
 		public void Create(Recipe r) {
 			using (IDbConnection db = new SqlConnection(connection)) {
-				string sqlQuery = "INSERT INTO recipe VALUES(@recipe_id, @cookbook_id, @title, @descript, @serving_size)";
+				string sqlQuery = "INSERT INTO recipe VALUES(@cookbook_id, @title, @descript, @serving_size)";
 				db.Execute(sqlQuery, r);
 			}
 		}
@@ -62,7 +69,7 @@ namespace CookBookWebSite.Service {
 		// Create new row in Ingredient
 		public void Create(Ingredient i) {
 			using (IDbConnection db = new SqlConnection(connection)) {
-				string sqlQuery = "INSERT INTO ingredient VALUES(@ingredient_id, @recipe_id, @portion, @measurement, @item)";
+				string sqlQuery = "INSERT INTO ingredient VALUES(@recipe_id, @portion, @measurement, @item)";
 				db.Execute(sqlQuery, i);
 			}
 		}
