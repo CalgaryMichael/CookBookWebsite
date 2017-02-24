@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Dapper;
 using CookBookWebSite.Service.SQL;
-using System.Diagnostics;
+using System.Linq;
 
 namespace CookBookWebSite.Service {
 	public class Database {
@@ -14,6 +14,7 @@ namespace CookBookWebSite.Service {
 
 		#region Database Creation
 
+		// Initialize the Database
 		public void initDatabase() {
 			CreateDatabase();
 			CreateTables();
@@ -21,7 +22,7 @@ namespace CookBookWebSite.Service {
 		}
 
 		// Drop & Create Database
-		public void CreateDatabase() {
+		private void CreateDatabase() {
 			using (IDbConnection db = new SqlConnection(master)) {
 				db.Execute(Scripts.CreateDatabaseSql);
 			}
@@ -29,7 +30,7 @@ namespace CookBookWebSite.Service {
 
 
 		// Create Tables to fill the Database
-		public void CreateTables() {
+		private void CreateTables() {
 			using (IDbConnection db = new SqlConnection(connection)) {
 				db.Execute(Scripts.CreateTablesSql);
 			}
@@ -37,7 +38,7 @@ namespace CookBookWebSite.Service {
 
 
 		// Fill tables with dummy data
-		public void InsertData() {
+		private void InsertData() {
 			using (IDbConnection db = new SqlConnection(connection)) {
 				db.Execute(Scripts.InsertDummyDataSql);
 			}
@@ -77,70 +78,29 @@ namespace CookBookWebSite.Service {
 		#endregion
 
 
-		#region Read Multiple
+		#region Read
 		
-		// Read all recipes in a CookBook
-		public CookBook ReadAllRecipeForCookBook(int id) {
-			CookBook cookbook = null;
-			var lookup = new Dictionary<int, Recipe>();
-
-			using (IDbConnection db = new SqlConnection(connection)) {
-				string sql = @"SELECT c.*, r.*, i.*,
-								FROM cookbook c, recipe as r, ingredient as i
-								WHERE i.recipe_id = r.recipe_id
-								AND r.cookbook_id = c.cookbook_id
-								AND c.cookbook_id = @id";
-				db.Query<CookBook, Recipe, Ingredient, CookBook>(sql,
-					(c, r, i) => {
-						cookbook = c;
-						Recipe recipe;
-
-						if (!lookup.TryGetValue(r.recipe_id, out recipe)) {
-							recipe = r;
-							lookup.Add(r.recipe_id, recipe);
-						}
-
-						if (cookbook.recipes == null)
-							cookbook.recipes = new List<Recipe>();
-
-						if (recipe.ingredients == null)
-							recipe.ingredients = new List<Ingredient>();
-
-						recipe.ingredients.Add(i);
-						cookbook.recipes.Add(recipe);
-						return cookbook;
-
-					}, splitOn: "cookbook_id,recipe_id,recipe_id");
-			}
-
-			return cookbook;
-		}
-
-
-		#endregion
-
-
-		#region Read Single
-
 		// Populate Single Core with all Competencies tied to it
 		public Recipe ReadRecipe(int ID) {
 			Recipe recipe = null;
 
 			using (IDbConnection db = new SqlConnection(connection)) {
-				string sql = @"SELECT c.*, r.*, i.*,
-								FROM recipe as r, ingredient as i
+				string sql = @"SELECT c.*, r.*, i.*
+								FROM cookbook AS c, recipe AS r, ingredient AS i
 								WHERE i.recipe_id = r.recipe_id
 								AND c.cookbook_id = r.cookbook_id
 								AND r.recipe_id = @id";
-				var result = db.Query<Recipe, CookBook, Ingredient, Ingredient>(sql,
-					(r, c, i) => {
-						if (recipe == null)
+				var result = db.Query<CookBook, Recipe, Ingredient, Ingredient>(sql,
+					(c, r, i) => {
+						if (recipe == null) {
 							recipe = r;
+							recipe.cookbook = c;
+						}
 
-						recipe.cookbook = c;
+						i.recipe = r;
 						return i;
 					}, new { id = ID },
-					splitOn: "recipe_id,recipe_id").AsList();
+					splitOn: "recipe_id,ingredient_id").AsList();
 				if (recipe != null) {
 					recipe.ingredients = result;
 				}
@@ -153,42 +113,60 @@ namespace CookBookWebSite.Service {
 		// Populate Single Core with all Competencies tied to it
 		public CookBook ReadCookbook(int ID) {
 			CookBook cookbook = null;
+			var lookup = new Dictionary<int, Recipe>();
 
 			using (IDbConnection db = new SqlConnection(connection)) {
-				string sql = @"SELECT c.* r.*, i.*,
-								FROM cookbook as c, recipe as r, ingredient as i
+				string sql = @"SELECT c.*, r.*, i.*
+								FROM cookbook AS c, recipe AS r, ingredient AS i
 								WHERE i.recipe_id = r.recipe_id
 								AND r.cookbook_id = c.cookbook_id
 								AND c.cookbook_id = @id";
 				var result = db.Query<CookBook, Recipe, Ingredient, Recipe>(sql,
 					(c, r, i) => {
-						if (cookbook == null)
+						// make sure that CookBook is not null
+						if (cookbook == null) {
 							cookbook = c;
+							c.recipes = new List<Recipe>();
+						}
 
-						if (r.ingredients == null)
-							r.ingredients = new List<Ingredient>();
-						r.ingredients.Add(i);
+						// check to see if 'r' is new or if we already have
+						// that recipe in our list
+						Recipe recipe;
+						if (!lookup.TryGetValue(r.recipe_id, out recipe)) {
+							lookup.Add(r.recipe_id, recipe = r);
+						}
 
-						if (r.cookbook == null)
-							r.cookbook = cookbook;
+						// make sure that recipe knows what CookBook it is a part of
+						if (recipe.cookbook == null)
+							recipe.cookbook = c;
 
-						return r;
+						// make sure that ingredient knows what recipe it is a part of
+						if (i.recipe == null)
+							i.recipe = recipe;
+
+						// add ingredient to recipe
+						if (recipe.ingredients == null)
+							recipe.ingredients = new List<Ingredient>();
+						recipe.ingredients.Add(i);
+
+						return recipe;
 					}, new { id = ID },
-					splitOn: "cookbook_id,recipe_id,recipe_id").AsList();
+					splitOn: "cookbook_id,recipe_id,ingredient_id").AsList();
 				if (cookbook != null) {
-					cookbook.recipes = result;
+					cookbook.recipes = lookup.Values.ToList();
 				}
 			}
 
 			return cookbook;
 		}
 
+
 		#endregion
 
 
 		#region Update
 
-		// Update row in Person
+		// Update row in CookBook
 		public void Update(CookBook c) {
 			using (IDbConnection db = new SqlConnection(connection)) {
 				string sqlQuery = "UPDATE cookbook SET title = @title WHERE cookbook_id = @cookbook_id";
@@ -197,7 +175,7 @@ namespace CookBookWebSite.Service {
 		}
 
 
-		// Update row in Badge
+		// Update row in Recipe
 		public void Update(Recipe r) {
 			using (IDbConnection db = new SqlConnection(connection)) {
 				var sqlQuery = "UPDATE Recipe SET cookbook_id = @cookbook_id, title = @title, descript = @decsript, serving_size = @serving_size WHERE recipe_id = @recipe_id";
@@ -206,7 +184,7 @@ namespace CookBookWebSite.Service {
 		}
 
 
-		// Update row in BadgeReceived
+		// Update row in Ingredient
 		public void Update(Ingredient i) {
 			using (IDbConnection db = new SqlConnection(connection)) {
 				string sqlQuery = "UPDATE ingredient SET recipe_id = @recipe_id, portion = @portion, measurement = @measurement, item = @item WHERE ingredient_id = @ingredient_id";
@@ -219,7 +197,7 @@ namespace CookBookWebSite.Service {
 
 		#region Delete
 
-		// Delete row in Person
+		// Delete row in CookBook
 		public void Delete(CookBook c) {
 			using (IDbConnection db = new SqlConnection(connection)) {
 				string sqlQuery = "DELETE cookbook WHERE cookbook_id = @cookbook_id";
@@ -228,7 +206,7 @@ namespace CookBookWebSite.Service {
 		}
 
 
-		// Delete row in Badge
+		// Delete row in Recipe
 		public void Delete(Recipe r) {
 			using (IDbConnection db = new SqlConnection(connection)) {
 				string sqlQuery = "DELETE recipe WHERE recipe_id = @recipe_id";
@@ -237,7 +215,7 @@ namespace CookBookWebSite.Service {
 		}
 
 
-		// Delete row in BadgeRecieved
+		// Delete row in Ingredient
 		public void Delete(Ingredient i) {
 			using (IDbConnection db = new SqlConnection(connection)) {
 				string sqlQuery = "DELETE ingredient WHERE ingredient_id = @ingredient_id";
