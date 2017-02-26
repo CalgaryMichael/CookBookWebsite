@@ -25,5 +25,14 @@ namespace CookBookWebSite.Controllers {
 			var r = db.ReadRecipe(id);
 			return View(r);
 		}
+
+
+		// GET CookBook/Create/{id}
+		public ActionResult Create(int id) {
+			var r = new Recipe();
+			r.cookbook = db.ReadCookbook(id);
+			r.cookbook_id = r.cookbook.cookbook_id;
+			return View(r);
+		}
     }
 }

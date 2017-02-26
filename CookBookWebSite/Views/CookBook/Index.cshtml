@@ -1,6 +1,7 @@
 ﻿@model CookBookWebSite.Models.CookBook
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "CookBook - " + Model.title;
+    ViewBag.CookBook = Model.cookbook_id;
 }
 
 <h2>Index</h2>
