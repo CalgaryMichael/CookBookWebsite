@@ -1,7 +1,19 @@
-﻿@model CookBookWebSite.Models.Recipe;
-@{
-    ViewBag.Title = "Recipe";
-}
+﻿@model CookBookWebSite.Models.Recipe
 
-<h2>Recipe</h2>
-
+<div class="container-fluid recipe-item">
+    <div class="row">
+        <h4>@Model.title</h4>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">@Model.descript</div>
+        <div class="col-sm-4"><b>Serving Size: </b>@Model.serving_size</div>
+    </div>
+    <br />
+    @foreach (var i in Model.ingredients) {
+        <div class="row">
+            <div class="col-sm-8">
+                @i.portion @i.measurement - @i.item
+            </div>
+        </div>
+    }
+</div>

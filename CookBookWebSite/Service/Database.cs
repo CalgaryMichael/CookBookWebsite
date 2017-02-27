@@ -61,7 +61,7 @@ namespace CookBookWebSite.Service {
 		// Create new row in Recipe
 		public void Create(Recipe r) {
 			using (IDbConnection db = new SqlConnection(connection)) {
-				string sqlQuery = "INSERT INTO recipe VALUES(@cookbook_id, @title, @descript, @serving_size)";
+				string sqlQuery = "INSERT INTO recipe VALUES(@recipe_id, @cookbook_id, @title, @descript, @serving_size)";
 				db.Execute(sqlQuery, r);
 			}
 		}
@@ -107,6 +107,17 @@ namespace CookBookWebSite.Service {
 			}
 
 			return recipe;
+		}
+
+
+		public Recipe ReadNewRecipe(int ID) {
+			using (IDbConnection db = new SqlConnection(connection)) {
+				string sql = @"SELECT c.*, r.*
+								FROM cookbook AS c, recipe AS r
+								WHERE c.cookbook_id = r.cookbook_id
+								AND r.recipe_id = @id";
+				return db.Query<Recipe>(sql, new { id = ID }).SingleOrDefault();
+			}
 		}
 
 
@@ -220,6 +231,18 @@ namespace CookBookWebSite.Service {
 			using (IDbConnection db = new SqlConnection(connection)) {
 				string sqlQuery = "DELETE ingredient WHERE ingredient_id = @ingredient_id";
 				db.Execute(sqlQuery, i);
+			}
+		}
+
+		#endregion
+
+
+		#region Misc
+
+		public int RecipeCount() {
+			using (IDbConnection db = new SqlConnection(connection)) {
+				string sql = "SELECT COUNT(*) FROM recipe";
+				return db.Query<int>(sql).Single();
 			}
 		}
 

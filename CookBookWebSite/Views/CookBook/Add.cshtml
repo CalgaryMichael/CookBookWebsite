@@ -1,0 +1,44 @@
+﻿@model CookBookWebSite.Models.Ingredient
+@{
+    ViewBag.Title = "Add";
+}
+
+@using (Html.BeginForm("Add", "CookBook", FormMethod.Post, new { id = "add-form" })) {
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.recipe_id)
+
+    <div class="form-horizontal">
+        <div class="row">
+            <div class="form-group">
+                @Html.Label("Portion", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.portion, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.Label("Measurement", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.measurement, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group">
+                @Html.Label("Item", htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-4">
+                    @Html.EditorFor(m => m.item, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Add" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}

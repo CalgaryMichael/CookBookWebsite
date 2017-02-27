@@ -1,15 +1,15 @@
 ﻿@model CookBookWebSite.Models.Recipe
 @{
     ViewBag.Title = "Create Recipe - " + Model.cookbook.title;
-    ViewBag.CookBook = Model.cookbook_id;
 }
 
 <h2>Create Recipe</h2>
 
-@using (Html.BeginForm()) 
-{
+@using (Html.BeginForm("Create", "CookBook", FormMethod.Post, new { id = "create-form" })) {
     @Html.AntiForgeryToken()
-    
+    @Html.HiddenFor(model => model.cookbook_id)
+    @Html.HiddenFor(model => model.recipe_id)
+
     <div class="form-horizontal">
         <hr />
         <div class="form-group">

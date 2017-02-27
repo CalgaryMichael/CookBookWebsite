@@ -1,0 +1,8 @@
+﻿@model CookBookWebSite.Models.Recipe
+@if (Model.ingredients.Any()) {
+    foreach (var i in Model.ingredients) {
+        <div class="row">
+            @i.portion @i.measurement - @i.item
+        </div>
+    }
+}

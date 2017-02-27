@@ -4,14 +4,41 @@
     ViewBag.CookBook = Model.cookbook_id;
 }
 
-<h2>Index</h2>
+<h2>@Model.title</h2>
 
-<p>@Model.title</p>
+<div class="container-fluid wrapper">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row wrapper-recipe-list">
+                <table id="recipe-table" class="table table-hover recipe-list">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Recipe</th>
+                            <th>Serving Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.recipes) {
+                            <tr id="recipe-@r.recipe_id">
+                                <td>@r.recipe_id</td>
+                                <td>@r.title</td>
+                                <td>@r.serving_size</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="wrapper-recipe-view">
+                <div id="recipe-pane" class="recipe-view"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
-@foreach (var r in Model.recipes) {
-    <p>@r.recipe_id - @r.title - @r.descript</p>
-    foreach (var i in r.ingredients) {
-        <p>@i.ingredient_id - @i.portion @i.measurement - @i.item</p>
-    }
-    <br />
+
+@section scriptsIncludes {
+    <script src="~/Content/recipe-list.js"></script>
 }

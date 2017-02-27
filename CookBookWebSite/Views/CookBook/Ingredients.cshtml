@@ -1,0 +1,22 @@
+﻿@model CookBookWebSite.Models.Ingredient
+
+@{
+    ViewBag.Title = "Add Ingredient";
+}
+
+<h2>Ingredient List</h2>
+
+<div class="container-fluid">
+    <div class="wrapper-current">
+        <div id="current-ingredients" class="row" data-id="@ViewBag.ID"></div>
+    </div>
+    <br />
+    <div class="wrapper-add">
+        <div id="add-ingredient" class="row"></div>
+    </div>
+</div>
+
+
+@section scriptsIncludes {
+    <script src="~/Content/ingredientHandler.js"></script>
+}

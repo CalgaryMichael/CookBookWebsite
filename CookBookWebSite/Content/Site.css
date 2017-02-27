@@ -50,3 +50,41 @@ a {
 #plus {
     color: #ff3232;
 }
+
+/* CookBook view */
+
+.wrapper {
+    display: block;
+    width: 100%;
+}
+
+
+.wrapper-recipe-list {
+    /*width: 30%;*/
+}
+
+.recipe-list {
+    overflow-y: auto;
+    height: 300px;
+    width: 100%;
+}
+
+
+.wrapper-recipe-view {
+    border: 1px solid black;
+}
+
+.recipe-view {
+    overflow-y: auto;
+    height: 300px;
+}
+
+.recipe-item {
+    margin-left: 35px;
+    width: 80%;
+}
+
+.recipe-item h4 {
+    color: #ff3232;
+    border-bottom: 1px solid #ff3232;
+}
