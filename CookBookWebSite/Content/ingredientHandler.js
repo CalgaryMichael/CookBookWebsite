@@ -2,12 +2,6 @@
     let current = $('#current-ingredients');
     loadCurrent(current);
     loadAdd(current);
-
-    $('#add-form').submit(function (e) {
-        e.preventDefault();
-        loadCurrent(current);
-        $('#add-ingredient').html(e);
-    })
 });
 
 var loadCurrent = function(current) {

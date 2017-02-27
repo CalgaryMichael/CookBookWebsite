@@ -30,7 +30,7 @@
         <div class="form-group">
             @Html.Label("Description", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.descript, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.TextArea("descript", new { @class="descript" })
                 @Html.ValidationMessageFor(model => model.descript, "", new { @class = "text-danger" })
             </div>
         </div>

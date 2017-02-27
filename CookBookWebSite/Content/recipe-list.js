@@ -21,17 +21,31 @@
             }
         ]
     });
+    
+    $('#recipe-table').ready(function () {
+        let data = recipes.row(0).data();
+        loadRecipe(data[0]);
+    })
+
 
     $('#recipe-table tbody').on('click', 'tr', function () {
         var data = recipes.row(this).data();
-        $.ajax({
-            url: '/CookBook/Recipe/',
-            type: 'GET',
-            dataType: 'html',
-            data: { id: data[0] },
-            success : function(data){
-                $('#recipe-pane').html(data);
-            }
-        });
+        loadRecipe(data[0]);
     });
 });
+
+
+var loadRecipe = function (info) {
+    $.ajax({
+        url: '/CookBook/Recipe/',
+        type: 'GET',
+        dataType: 'html',
+        data: { id: info },
+        success: function (data) {
+            $('#recipe-pane').html(data);
+        },
+        error: function (data) {
+            $('#recipe-pane').html(data.responseText);
+        }
+    });
+}

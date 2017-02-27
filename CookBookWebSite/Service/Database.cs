@@ -220,7 +220,8 @@ namespace CookBookWebSite.Service {
 		// Delete row in Recipe
 		public void Delete(Recipe r) {
 			using (IDbConnection db = new SqlConnection(connection)) {
-				string sqlQuery = "DELETE recipe WHERE recipe_id = @recipe_id";
+				string sqlQuery = @"DELETE FROM ingredient WHERE recipe_id = @recipe_id;
+									DELETE FROM recipe WHERE recipe_id = @recipe_id;";
 				db.Execute(sqlQuery, r);
 			}
 		}

@@ -5,8 +5,8 @@
         <h4>@Model.title</h4>
     </div>
     <div class="row">
-        <div class="col-sm-4">@Model.descript</div>
         <div class="col-sm-4"><b>Serving Size: </b>@Model.serving_size</div>
+        <div class="col-sm-4"><a href="/CookBook/Delete/@Model.recipe_id"><i class="fa fa-trash-o" aria-hidden="true"></i></a></div>
     </div>
     <br />
     @foreach (var i in Model.ingredients) {
@@ -16,4 +16,11 @@
             </div>
         </div>
     }
+    <br />
+    <div class="row">
+        <b>Description:</b>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">@Model.descript</div>
+    </div>
 </div>

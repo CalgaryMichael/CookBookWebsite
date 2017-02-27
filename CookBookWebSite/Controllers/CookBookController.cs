@@ -78,5 +78,20 @@ namespace CookBookWebSite.Controllers {
 			db.Create(i);
 			return RedirectToAction("Ingredients", new { id = i.recipe_id });
 		}
+
+
+		// GET: CookBook/Delete
+		public ActionResult Delete(int id) {
+			var r = db.ReadRecipe(id);
+			return View(r);
+		}
+
+
+		// POST: Cook/Delete
+		[HttpPost]
+		public ActionResult Delete(Recipe r) {
+			db.Delete(r);
+			return RedirectToAction("Index");
+		}
     }
 }
